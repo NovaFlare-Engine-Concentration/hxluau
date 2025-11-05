@@ -1,0 +1,20 @@
+{
+	"name": "hxluau",
+	"url": "https://github.com/luau-lang/luau",
+	"license": "MIT",
+	"tags": [
+		"cpp",
+		"luau",
+		"haxe"
+	],
+	"description": "Haxe/hxcpp @:native bindings for Luau.",
+	"version": "1.0.0",
+	"releasenote": "Initial release with Luau bindings.",
+	"contributors": [
+		"MAJigsaw77"
+	],
+	"classPath": "source",
+	"dependencies": {
+		"hxcpp": ""
+	}
+}
