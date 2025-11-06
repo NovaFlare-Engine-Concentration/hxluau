@@ -38,10 +38,6 @@ class Main {
         var scriptContent:String = sys.io.File.getContent("script.lua");
         LuaL.dostring(L, scriptContent);
         
-        if (result != 0) {
-            Sys.println("Error running script: " + result);
-        }
-        
         // 清理
         Lua.close(L);
         
