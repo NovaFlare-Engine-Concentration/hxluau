@@ -51,14 +51,12 @@
 		</section>
 
 		<section if="mingw">
-			<!-- Note: luau.lib for Windows x64 was removed due to GitHub file size limitations -->
-			<!-- Users need to obtain the Luau library separately or build it from source -->
+			<lib name="${haxelib:hxluau}/project/luau/lib/Windows/x64/luau.lib" if="HXCPP_M64" />
 			<lib name="${haxelib:hxluau}/project/luau/lib/Windows/arm64/luau.lib" if="HXCPP_ARM64" />
 		</section>
 
 		<section if="windows">
-			<!-- Note: luau.lib for Windows x64 was removed due to GitHub file size limitations -->
-			<!-- Users need to obtain the Luau library separately or build it from source -->
+			<lib name="${haxelib:hxluau}/project/luau/lib/Windows/x64/luau.lib" if="HXCPP_M64" />
 			<lib name="${haxelib:hxluau}/project/luau/lib/Windows/arm64/luau.lib" if="HXCPP_ARM64" />
 		</section>
 
