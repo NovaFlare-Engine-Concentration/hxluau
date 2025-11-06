@@ -1,11 +1,7 @@
 name: Build Luau Libraries
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+on: workflow_dispatch
+  
 # Grant write permissions to GITHUB_TOKEN so the workflow can push commits
 permissions:
   contents: write
@@ -493,3 +489,4 @@ jobs:
           fi
 
       # Removed commit step to avoid storing binaries via Git LFS and hitting quota
+
