@@ -80,11 +80,16 @@ extern class Lua {
 	@:native('lua_pushfstring')
 	static function pushfstring(L:cpp.RawPointer<Lua_State>, fmt:cpp.ConstCharStar, args:cpp.Rest<cpp.VarArg>):cpp.ConstCharStar;
 
-	@:native('lua_pushcclosure')
-	static function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int):Void;
+	@:native('lua_pushcclosurek')
+	static function pushcclosurek(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int, cont:Lua_Continuation):Void;
 
-	@:native('lua_pushcfunction')
-	static function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar):Void;
+	static inline function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int):Void {
+		pushcclosurek(L, fn, debugname, n, null);
+	}
+
+	static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar):Void {
+		pushcclosurek(L, fn, debugname, 0, null);
+	}
 
 	@:noCompletion
 	@:native('lua_pushboolean')

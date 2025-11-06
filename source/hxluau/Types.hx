@@ -24,6 +24,11 @@ extern class Lua_State {}
 typedef Lua_CFunction = cpp.Callable<(L:cpp.RawPointer<Lua_State>) -> Int>;
 
 /**
+ * Type for Lua continuation functions.
+ */
+typedef Lua_Continuation = cpp.Callable<(L:cpp.RawPointer<Lua_State>, status:Int) -> Int>;
+
+/**
  * Type for functions that read blocks when loading/dumping Lua chunks.
  */
 typedef Lua_Reader = cpp.Callable<(L:cpp.RawPointer<Lua_State>, ud:cpp.RawPointer<cpp.Void>, sz:cpp.RawPointer<cpp.SizeT>) -> cpp.ConstCharStar>;
