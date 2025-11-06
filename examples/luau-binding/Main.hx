@@ -12,6 +12,22 @@ import cpp.Callable;
  * 这个示例展示了如何使用 hxluau 库来访问 Luau 功能
  */
 class Main {
+    // 定义 Haxe 函数，将被注册到 Luau
+    static function myAddFunction(L:cpp.RawPointer<hxluau.Lua_State>):Int {
+        var a = LuaL.checknumber(L, 1);
+        var b = LuaL.checknumber(L, 2);
+        var result = a + b;
+        Lua.pushnumber(L, result);
+        return 1; // 返回值的数量
+    }
+    
+    static function myGreetFunction(L:cpp.RawPointer<hxluau.Lua_State>):Int {
+        var name = LuaL.checkstring(L, 1);
+        var greeting = "Hello, " + name + "!";
+        Lua.pushstring(L, greeting);
+        return 1;
+    }
+    
     public static function main() {
         trace("Luau Binding Example - Using hxluau bindings from source/luau");
         
@@ -43,22 +59,6 @@ class Main {
         
         // 示例 2: 注册一个 C++ 函数并从 Luau 调用
         trace("\n--- Example 2: Registering C++ Functions ---");
-        
-        // 定义一个 Haxe 函数，将被注册到 Luau
-        function myAddFunction(L:cpp.RawPointer<hxluau.Lua_State>):Int {
-            var a = LuaL.checknumber(L, 1);
-            var b = LuaL.checknumber(L, 2);
-            var result = a + b;
-            Lua.pushnumber(L, result);
-            return 1; // 返回值的数量
-        }
-        
-        function myGreetFunction(L:cpp.RawPointer<hxluau.Lua_State>):Int {
-            var name = LuaL.checkstring(L, 1);
-            var greeting = "Hello, " + name + "!";
-            Lua.pushstring(L, greeting);
-            return 1;
-        }
         
         // 注册函数到 Luau
         Lua.register(L, "myAdd", cpp.Callable.fromStaticFunction(myAddFunction));
