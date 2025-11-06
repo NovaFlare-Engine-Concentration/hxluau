@@ -44,7 +44,7 @@ class Main {
         trace("\n--- Example 2: Registering C++ Functions ---");
         
         // 定义一个 Haxe 函数，将被注册到 Luau
-        var myAddFunction:hxluau.Lua_CFunction = (L:State) -> {
+        var myAddFunction:hxluau.Lua_CFunction = function(L:cpp.RawPointer<hxluau.Lua_State>):Int {
             var a = LuaL.checknumber(L, 1);
             var b = LuaL.checknumber(L, 2);
             var result = a + b;
@@ -52,7 +52,7 @@ class Main {
             return 1; // 返回值的数量
         };
         
-        var myGreetFunction:hxluau.Lua_CFunction = (L:State) -> {
+        var myGreetFunction:hxluau.Lua_CFunction = function(L:cpp.RawPointer<hxluau.Lua_State>):Int {
             var name = LuaL.checkstring(L, 1);
             var greeting = "Hello, " + name + "!";
             Lua.pushstring(L, greeting);
@@ -60,11 +60,8 @@ class Main {
         };
         
         // 注册函数到 Luau
-        Lua.pushcfunction(L, myAddFunction, "myAdd");
-        Lua.setglobal(L, "myAdd");
-        
-        Lua.pushcfunction(L, myGreetFunction, "myGreet");
-        Lua.setglobal(L, "myGreet");
+        Lua.register(L, "myAdd", myAddFunction);
+        Lua.register(L, "myGreet", myGreetFunction);
         
         var script2 = '
             local sum = myAdd(10, 20)
