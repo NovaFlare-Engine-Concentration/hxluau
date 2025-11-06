@@ -210,7 +210,7 @@ extern class Lua {
 	static function ref(L:cpp.RawPointer<Lua_State>, t:Int):Int;
 
 	@:native('lua_unref')
-	static function unref(L:cpp.RawPointer<Lua_State>, t:Int, ref:Int):Void;
+	static function unref(L:cpp.RawPointer<Lua_State>, ref:Int):Void;
 
     static inline function register(L:cpp.RawPointer<Lua_State>, name:cpp.ConstCharStar, f:Lua_CFunction):Void {
         Lua.pushcfunction(L, f, name);
