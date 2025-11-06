@@ -61,8 +61,11 @@ class Main {
         trace("\n--- Example 2: Registering C++ Functions ---");
         
         // 注册函数到 Luau
-        Lua.register(L, "myAdd", cpp.Callable.fromStaticFunction(myAddFunction));
-        Lua.register(L, "myGreet", cpp.Callable.fromStaticFunction(myGreetFunction));
+        Lua.pushcfunction(L, cpp.Callable.fromStaticFunction(myAddFunction), "myAdd");
+        Lua.setglobal(L, "myAdd");
+        
+        Lua.pushcfunction(L, cpp.Callable.fromStaticFunction(myGreetFunction), "myGreet");
+        Lua.setglobal(L, "myGreet");
         
         var script2 = '
             local sum = myAdd(10, 20)
