@@ -17,9 +17,11 @@ class Main
 		/* load Lua base libraries */
 		LuaL.openlibs(vm);
 
-		/* run the script */
-		var scriptContent:String = sys.io.File.getContent("script.lua");
-		var result = LuaL.dostring(vm, scriptContent);
+		/* install custom print (optional; mirrors base print) */
+		LuaL.registerPrint(vm);
+
+		/* run the script via dofile (compile + pcall) */
+		var result = LuaL.dofile(vm, "script.lua");
 		
 		// Check the result if needed
 		if (result != 0) {

@@ -85,4 +85,31 @@ extern class LuaOpen
 	 */
 	@:native('luaopen_buffer')
 	static function buffer(L:cpp.RawPointer<Lua_State>):Int;
+
+	/**
+	 * Opens the operating system library (`os`) into the given Lua state.
+	 *
+	 * @param L The Lua state.
+	 * @return The number of results pushed onto the Lua stack.
+	 */
+	@:native('luaopen_os')
+	static function os(L:cpp.RawPointer<Lua_State>):Int;
+
+	/**
+	 * Opens the debug library (`debug`) into the given Lua state.
+	 *
+	 * @param L The Lua state.
+	 * @return The number of results pushed onto the Lua stack.
+	 */
+	@:native('luaopen_debug')
+	static function debug(L:cpp.RawPointer<Lua_State>):Int;
+
+	/**
+	 * Opens the vector library (`vector`) into the given Lua state.
+	 *
+	 * @param L The Lua state.
+	 * @return The number of results pushed onto the Lua stack.
+	 */
+	@:native('luaopen_vector')
+	static function vector(L:cpp.RawPointer<Lua_State>):Int;
 }

@@ -85,4 +85,38 @@ int hxluau_LuaL_dostring_wrapper(lua_State* L, const char* str) {
     return loadResult;
 }
 
+// Wrapper for luaL_dofile functionality
+int hxluau_LuaL_dofile_wrapper(lua_State* L, const char* filename) {
+    int loadResult = hxluau_LuaL_loadfile_wrapper(L, filename);
+    if (loadResult == 0) {
+        return lua_pcall(L, 0, LUA_MULTRET, 0);
+    }
+    return loadResult;
+}
+
+// Custom print implementation that mirrors Lua's base print behavior
+static int hxluau_print(lua_State* L) {
+    int n = lua_gettop(L);  /* number of arguments */
+    for (int i = 1; i <= n; i++) {
+        const char* s = lua_tolstring(L, i, NULL);
+        if (!s) {
+            // Convert non-strings to string
+            luaL_tolstring(L, i, NULL);
+            s = lua_tolstring(L, -1, NULL);
+            // remove temporary string
+            lua_remove(L, -2);
+        }
+        fputs(s ? s : "nil", stdout);
+        if (i < n) fputc('\t', stdout);
+    }
+    fputc('\n', stdout);
+    return 0;
+}
+
+// Register the custom print into the global 'print'
+void hxluau_register_print(lua_State* L) {
+    lua_pushcfunction(L, hxluau_print, "print");
+    lua_setglobal(L, "print");
+}
+
 }

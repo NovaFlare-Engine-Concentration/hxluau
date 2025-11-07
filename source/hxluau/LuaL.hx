@@ -393,9 +393,8 @@ extern class LuaL
 	 * @return The result of the execution.
 	 */
 	inline static function dofile(L:cpp.RawPointer<Lua_State>, filename:cpp.ConstCharStar):Int {
-		// For Luau, we'll implement this in the C++ layer via haxe cpp implementation
-		// We need to return an error since luaL_loadfile doesn't exist in Luau
-		return Lua.ERRERR;
+		// Implemented in C++ via hxluau wrapper: compile + pcall
+		return hxluau_dofile(L, filename);
 	}
 
 	/**
@@ -407,6 +406,14 @@ extern class LuaL
 	 */
 	@:native("hxluau_LuaL_dostring_wrapper")
 	static function dostring(L:cpp.RawPointer<Lua_State>, str:cpp.ConstCharStar):Int;
+
+	/**
+	 * Registers custom print implementation into global 'print'.
+	 *
+	 * @param L The Lua state.
+	 */
+	@:native("hxluau_register_print")
+	static function registerPrint(L:cpp.RawPointer<Lua_State>):Void;
 
 	/**
 	 * Gets the metatable for a name.
@@ -545,4 +552,14 @@ extern class LuaL
 	 */
 	@:native("hxluau_LuaL_loadstring_wrapper")
 	static function loadstring(L:cpp.RawPointer<Lua_State>, s:cpp.ConstCharStar):Int;
+
+	/**
+	 * Executes a Lua file (compile with Luau and pcall).
+	 *
+	 * @param L The Lua state.
+	 * @param filename The name of the file.
+	 * @return The status code (0 on success).
+	 */
+	@:native("hxluau_LuaL_dofile_wrapper")
+	private static function hxluau_dofile(L:cpp.RawPointer<Lua_State>, filename:cpp.ConstCharStar):Int;
 }

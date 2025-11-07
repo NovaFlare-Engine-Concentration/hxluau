@@ -186,19 +186,32 @@ jobs:
           cmake --build . --config MinSizeRel
 
           REM Combine minimal set of Luau libraries (Ast/Compiler/Config/VM)
-          echo Listing minimal Luau.*.lib recursively:
-          for /r %%f in (Luau.Ast.lib) do echo %%f
-          for /r %%f in (Luau.Compiler.lib) do echo %%f
-          for /r %%f in (Luau.Config.lib) do echo %%f
-          for /r %%f in (Luau.VM.lib) do echo %%f
+          echo Listing candidate Luau.*.lib in current build dir:
+          dir /b Luau.Ast.lib Luau.Compiler.lib Luau.Config.lib Luau.VM.lib 2>nul
 
           setlocal EnableDelayedExpansion
           set FILES=
-          rem Collect minimal candidate libs
-          for /r %%f in (Luau.Ast.lib) do set FILES=!FILES! "%%f"
-          for /r %%f in (Luau.Compiler.lib) do set FILES=!FILES! "%%f"
-          for /r %%f in (Luau.Config.lib) do set FILES=!FILES! "%%f"
-          for /r %%f in (Luau.VM.lib) do set FILES=!FILES! "%%f"
+          rem Prefer libs in current build dir (Ninja single-config)
+          for %%f in (Luau.Ast.lib Luau.Compiler.lib Luau.Config.lib Luau.VM.lib) do (
+            if exist "%%f" set FILES=!FILES! "%%f"
+          )
+
+          rem Fallback: recursive search, excluding CMakeFiles (to avoid bogus paths)
+          if "!FILES!"=="" (
+            echo No libs found in current dir; searching recursively...
+            for /r %%f in (Luau.Ast.lib) do (
+              echo %%f | findstr /i /c:"\CMakeFiles\" >nul || set FILES=!FILES! "%%f"
+            )
+            for /r %%f in (Luau.Compiler.lib) do (
+              echo %%f | findstr /i /c:"\CMakeFiles\" >nul || set FILES=!FILES! "%%f"
+            )
+            for /r %%f in (Luau.Config.lib) do (
+              echo %%f | findstr /i /c:"\CMakeFiles\" >nul || set FILES=!FILES! "%%f"
+            )
+            for /r %%f in (Luau.VM.lib) do (
+              echo %%f | findstr /i /c:"\CMakeFiles\" >nul || set FILES=!FILES! "%%f"
+            )
+          )
           if "!FILES!"=="" (
             echo No .lib files found to merge. Failing.
             exit /b 1
@@ -410,6 +423,16 @@ jobs:
           lfs: false
           persist-credentials: true
 
+      - name: Setup SSH agent for push
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Add github.com to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
@@ -523,6 +546,7 @@ jobs:
             echo "No changes to commit; skipping push."
           else
             git commit -m "chore: update prebuilt luau libraries [skip ci]"
+            git remote set-url origin git@github.com:Ajwyunsx/hxluau.git
             git push origin HEAD:main
           fi
 

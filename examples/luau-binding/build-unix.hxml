@@ -4,3 +4,8 @@
 -lib hxluau
 -main Main
 -cpp bin
+# Copy script file to output directory
+-cmd cp script.lua bin/script.lua
+
+# Run the executable
+-cmd ./bin/Main

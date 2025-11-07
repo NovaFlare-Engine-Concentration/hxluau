@@ -1,0 +1,129 @@
+name: Publish Windows Luau Library
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-push-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: true
+
+      - name: Setup MSVC Build Tools
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.14
+        with:
+          cmake-version: '3.22.x'
+
+      - name: Clone Luau repository
+        shell: cmd
+        run: |
+          rmdir /s /q project\luau 2>nul
+          git clone https://github.com/luau-lang/luau.git project\luau
+
+      - name: Build minimal luau.lib (Windows x64, static /MT)
+        shell: cmd
+        run: |
+          setlocal EnableDelayedExpansion
+          cd project\luau
+          mkdir build
+          cd build
+          cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+          cmake --build . --config MinSizeRel
+
+          rem Collect only required Luau libs to minimize size
+          set FILES=
+          for /r %%f in (Luau.Ast.lib) do set FILES=!FILES! "%%f"
+          for /r %%f in (Luau.Compiler.lib) do set FILES=!FILES! "%%f"
+          for /r %%f in (Luau.Config.lib) do set FILES=!FILES! "%%f"
+          for /r %%f in (Luau.VM.lib) do set FILES=!FILES! "%%f"
+
+          if "!FILES!"=="" (
+            echo ERROR: Required Luau libs not found.
+            for /r %%f in (*.lib) do echo %%f
+            exit /b 1
+          )
+
+          echo Merging into luau.lib: !FILES!
+          lib.exe /OUT:luau.lib !FILES!
+          if errorlevel 1 exit /b %errorlevel%
+
+          mkdir ..\lib\Windows\x64 2>nul
+          copy /Y luau.lib ..\lib\Windows\x64\luau.lib
+
+      - name: Validate library
+        shell: cmd
+        run: |
+          setlocal EnableDelayedExpansion
+          set LIB=%GITHUB_WORKSPACE%\project\luau\lib\Windows\x64\luau.lib
+          if not exist "%LIB%" (
+            echo ERROR: luau.lib missing
+            dir "%GITHUB_WORKSPACE%\project\luau\lib\Windows\x64\"
+            exit /b 1
+          )
+          for %%A in ("%LIB%") do set SIZE=%%~zA
+          echo luau.lib size: !SIZE! bytes
+          lib.exe /NOLOGO /LIST "%LIB%" >nul 2>&1
+          if errorlevel 1 (
+            echo ERROR: lib.exe failed to read the library; invalid or corrupt.
+            exit /b 1
+          )
+
+      - name: Upload built library artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-luau-lib
+          path: project/luau/lib/Windows/x64/luau.lib
+          if-no-files-found: error
+
+  finalize-and-push:
+    needs: build-and-push-windows-x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+          persist-credentials: true
+
+      - name: Setup SSH agent for push
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Add github.com to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-x64-luau-lib
+          path: project/luau/lib/Windows/x64
+
+      - name: Commit and push updated library
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -f project/luau/lib/Windows/x64/luau.lib
+          if git diff --cached --quiet; then
+            echo "No changes to commit; skipping push."
+          else
+            git commit -m "chore: update Windows x64 prebuilt luau.lib [skip ci]"
+            git remote set-url origin git@github.com:Ajwyunsx/hxluau.git
+            git push origin HEAD:main
+          fi
