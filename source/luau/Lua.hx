@@ -97,10 +97,10 @@ extern class Lua {
 	static function pushcclosurek(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int, cont:Lua_Continuation):Void;
 
 	static inline function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, n:Int):Void {
-		pushcclosurek(L, fn, "closure", n, null);
+		pushcclosurek(L, fn, null, n, null);
 	}
 
-	static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar = "cfunction"):Void {
+	static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar = null):Void {
 		pushcclosurek(L, fn, debugname, 0, null);
 	}
 
@@ -246,12 +246,12 @@ extern class Lua {
 	static function unref(L:cpp.RawPointer<Lua_State>, ref:Int):Void;
 
     static inline function register(L:cpp.RawPointer<Lua_State>, name:cpp.ConstCharStar, f:Lua_CFunction):Void {
-        Lua.pushcfunction(L, f, name);
+        Lua.pushcfunction(L, f);
         Lua.setglobal(L, name);
     }
 
     static inline function init_callbacks(L:cpp.RawPointer<Lua_State>):Void {
-        Lua.pushcfunction(L, cpp.Callable.fromStaticFunction(print), "print");
+        Lua.pushcfunction(L, cpp.Callable.fromStaticFunction(print));
         Lua.setglobal(L, "print");
     }
 
