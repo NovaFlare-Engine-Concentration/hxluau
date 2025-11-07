@@ -215,7 +215,7 @@ extern class LuaL
 	 * @param t The index of the table.
 	 * @return The reference index.
 	 */
-	@:native('luaL_ref')
+	@:native('lua_ref')
 	static function ref(L:cpp.RawPointer<Lua_State>, t:Int):Int;
 
 	/**
@@ -225,7 +225,7 @@ extern class LuaL
 	 * @param t The index of the table.
 	 * @param ref The reference index.
 	 */
-	@:native('luaL_unref')
+	@:native('lua_unref')
 	static function unref(L:cpp.RawPointer<Lua_State>, t:Int, ref:Int):Void;
 
 	/**
