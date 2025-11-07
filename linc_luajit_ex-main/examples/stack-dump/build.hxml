@@ -1,6 +1,0 @@
--cp ./
--D analyzer-optimize
--lib hxluajit
--main Main
--cpp bin
--cmd bin/Main
