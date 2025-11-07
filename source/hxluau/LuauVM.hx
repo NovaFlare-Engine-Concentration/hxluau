@@ -67,11 +67,7 @@ extern class LuauVM
     // --- Compatibility stubs for codegen API (optional in Luau) ---
     public static inline function codegen_supported():Bool return false;
 
-    public static inline function codegen_create():cpp.RawPointer<cpp.Void> return null;
+    public static inline function codegen_create(flags:Int = 0):cpp.RawPointer<cpp.Void> return null;
 
-    public static inline function codegen_create(flags:Int):cpp.RawPointer<cpp.Void> return null;
-
-    public static inline function codegen_compile(handle:cpp.RawPointer<cpp.Void>, L:cpp.RawPointer<Lua_State>):Int return 0;
-
-    public static inline function codegen_compile(handle:cpp.RawPointer<cpp.Void>, L:cpp.RawPointer<Lua_State>, flags:Int):Int return 0;
+    public static inline function codegen_compile(handle:cpp.RawPointer<cpp.Void>, L:cpp.RawPointer<Lua_State>, flags:Int = 0):Int return 0;
 }

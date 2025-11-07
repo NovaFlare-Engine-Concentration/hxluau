@@ -96,22 +96,13 @@ extern class Lua {
 	@:native('lua_pushcclosurek')
 	static function pushcclosurek(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int, cont:Lua_Continuation):Void;
 
-	static inline function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar, n:Int):Void {
-		pushcclosurek(L, fn, debugname, n, null);
+	static inline function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, n:Int):Void {
+		pushcclosurek(L, fn, "closure", n, null);
 	}
 
-    // Convenience overloads to match libraries that don't pass debug names
-    static inline function pushcclosure(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, n:Int):Void {
-        pushcclosurek(L, fn, "closure", n, null);
-    }
-
-	static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar):Void {
+	static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction, debugname:cpp.ConstCharStar = "cfunction"):Void {
 		pushcclosurek(L, fn, debugname, 0, null);
 	}
-
-    static inline function pushcfunction(L:cpp.RawPointer<Lua_State>, fn:Lua_CFunction):Void {
-        pushcclosurek(L, fn, "cfunction", 0, null);
-    }
 
 	@:noCompletion
 	@:native('lua_pushboolean')
@@ -309,7 +300,7 @@ class Lua_helper {
 	public static function add_callback(L:cpp.RawPointer<Lua_State>, fname:String, f:Dynamic):Bool {
 		callbacks.set(fname, f);
         Lua.pushstring(L, fname);
-        Lua.pushcclosure(L, cpp.Callable.fromStaticFunction(callback_handler), fname, 1);
+        Lua.pushcclosurek(L, cpp.Callable.fromStaticFunction(callback_handler), fname, 1, null);
         Lua.setglobal(L, fname);
 		return true;
 	}
