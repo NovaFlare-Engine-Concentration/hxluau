@@ -148,3 +148,14 @@ LUALIB_API void luaL_openlibs(lua_State* L);
 // sandbox libraries and globals
 LUALIB_API void luaL_sandbox(lua_State* L);
 LUALIB_API void luaL_sandboxthread(lua_State* L);
+
+// Compatibility aliases for legacy Lua auxlib API
+// Some external libraries expect luaL_ref/luaL_unref, which are not
+// declared in Luau headers; map them to existing registry ref functions.
+#ifndef luaL_ref
+#define luaL_ref(L, t) lua_ref((L), (t))
+#endif
+
+#ifndef luaL_unref
+#define luaL_unref(L, t, ref) lua_unref((L), (ref))
+#endif
